@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>等林 — 등림</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0A0A;
+  --bg2: #111111;
+  --bg3: #1A1A1A;
+  --border: rgba(255,255,255,0.07);
+  --text: rgba(255,255,255,0.9);
+  --muted: rgba(255,255,255,0.35);
+  --hint: rgba(255,255,255,0.15);
+  --gold: #FFD832;
+  --green0: #0F2A0F;
+  --green1: #1A4A1A;
+  --green2: #2A6A2A;
+  --green3: #3A8A3A;
+  --green4: #4AAA4A;
+  --green5: #5AC85A;
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 14px; }
+
+/* layout */
+.app { max-width: 400px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+
+/* screens */
+.screen { flex: 1; overflow-y: auto; padding: 28px 20px 90px; display: none; flex-direction: column; gap: 0; }
+.screen.active { display: flex; }
+
+/* nav */
+nav { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(10,10,10,0.95); border-top: 0.5px solid var(--border); display: flex; backdrop-filter: blur(20px); }
+nav button { flex: 1; background: none; border: none; color: var(--muted); padding: 14px 8px 18px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; font-family: 'Noto Sans KR', sans-serif; letter-spacing: .03em; transition: color .2s; }
+nav button.on { color: var(--gold); }
+nav button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* home screen */
+.home-top { margin-bottom: 32px; padding-top: 12px; }
+.home-sun { width: 40px; height: 40px; border-radius: 50%; background: var(--gold); opacity: 0.9; margin-bottom: 24px; }
+.home-count { font-family: 'Noto Serif KR', serif; font-size: 72px; font-weight: 300; color: #fff; line-height: 1; margin-bottom: 4px; }
+.home-sub { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+.home-quote { font-family: 'Noto Serif KR', serif; font-size: 11px; color: var(--hint); margin-top: 20px; line-height: 1.8; }
+
+.mini-forest { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; min-height: 48px; }
+.mini-tree { font-size: 20px; transition: all .3s; animation: pop .3s ease; }
+@keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.add-btn { background: rgba(255,216,50,0.08); border: 0.5px solid rgba(255,216,50,0.25); border-radius: var(--radius); padding: 16px 20px; color: var(--gold); font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; transition: background .2s; }
+.add-btn:hover { background: rgba(255,216,50,0.14); }
+.add-btn .plus { font-size: 22px; font-weight: 300; }
+
+.recent-title { font-size: 11px; color: var(--muted); margin: 28px 0 12px; letter-spacing: .05em; }
+.entry-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 8px; }
+.entry-date { font-size: 10px; color: var(--muted); margin-bottom: 5px; }
+.entry-text { font-size: 13px; color: rgba(255,255,255,.75); line-height: 1.6; margin-bottom: 8px; }
+.entry-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: 10px; padding: 3px 8px; border-radius: 20px; background: var(--bg3); color: var(--muted); border: 0.5px solid var(--border); }
+.empty-msg { color: var(--hint); font-size: 13px; line-height: 1.8; text-align: center; padding: 32px 0; font-family: 'Noto Serif KR', serif; }
+
+/* log screen */
+.log-header { font-family: 'Noto Serif KR', serif; font-size: 18px; color: var(--text); margin-bottom: 6px; padding-top: 12px; }
+.log-sub { font-size: 12px; color: var(--muted); margin-bottom: 28px; line-height: 1.7; }
+.log-input { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 16px; width: 100%; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 14px; resize: none; height: 140px; outline: none; line-height: 1.7; transition: border-color .2s; }
+.log-input::placeholder { color: var(--hint); }
+.log-input:focus { border-color: rgba(255,216,50,0.3); }
+.log-section { font-size: 11px; color: var(--muted); margin: 20px 0 10px; letter-spacing: .05em; }
+.tags-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+.tag-sel { font-size: 12px; padding: 6px 14px; border-radius: 20px; background: var(--bg2); color: var(--muted); border: 0.5px solid var(--border); cursor: pointer; transition: all .18s; }
+.tag-sel.on { background: rgba(255,216,50,0.1); color: var(--gold); border-color: rgba(255,216,50,0.3); }
+.log-hint { font-family: 'Noto Serif KR', serif; font-size: 11px; color: var(--hint); text-align: center; margin-bottom: 16px; line-height: 1.8; }
+.submit-btn { width: 100%; background: var(--gold); color: #000; border: none; border-radius: var(--radius); padding: 16px; font-size: 15px; font-family: 'Noto Sans KR', sans-serif; font-weight: 500; cursor: pointer; transition: opacity .2s; }
+.submit-btn:hover { opacity: 0.88; }
+.submit-btn:active { opacity: 0.75; transform: scale(0.99); }
+
+/* planted animation */
+.planted-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; z-index: 999; }
+.planted-overlay.show { display: flex; animation: fadein .3s; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+.planted-tree { font-size: 72px; animation: grow .6s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes grow { from { transform: scale(0) rotate(-10deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
+.planted-zh { font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--gold); letter-spacing: .1em; }
+.planted-kr { font-size: 12px; color: var(--muted); }
+.planted-close { margin-top: 8px; font-size: 12px; color: var(--hint); cursor: pointer; }
+
+/* forest screen */
+.forest-header { font-family: 'Noto Serif KR', serif; font-size: 18px; margin-bottom: 4px; padding-top: 12px; }
+.forest-sub { font-size: 11px; color: var(--muted); margin-bottom: 28px; }
+.forest-canvas { width: 100%; border-radius: var(--radius-sm); overflow: hidden; background: linear-gradient(180deg, #0A1A0A 0%, #0F2A0F 100%); position: relative; margin-bottom: 24px; }
+.forest-inner { padding: 24px 16px 16px; min-height: 200px; display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-end; justify-content: center; }
+.f-tree { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.f-top { border-radius: 50% 50% 40% 40%; }
+.f-trunk { background: #3D2010; border-radius: 2px; }
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 24px; }
+.stat-box { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 14px 12px; text-align: center; }
+.stat-n { font-family: 'Noto Serif KR', serif; font-size: 26px; font-weight: 300; color: #fff; margin-bottom: 2px; }
+.stat-l { font-size: 10px; color: var(--muted); }
+
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-month { font-size: 11px; color: var(--muted); margin: 16px 0 8px; letter-spacing: .05em; }
+.tl-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+.tl-icon { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
+.tl-body { flex: 1; }
+.tl-text { font-size: 12px; color: rgba(255,255,255,.65); line-height: 1.6; margin-bottom: 4px; }
+.tl-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.tl-tag { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: var(--bg3); color: var(--muted); }
+.tl-date { font-size: 10px; color: var(--hint); margin-top: 3px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HOME -->
+  <div class="screen active" id="s-home">
+    <div class="home-top">
+      <div class="home-sun"></div>
+      <div class="home-count" id="count">0</div>
+      <div class="home-sub">그루의 나무</div>
+      <div class="home-quote">棄其杖，化為鄧林<br><span style="font-size:10px;color:var(--hint)">그가 버린 지팡이는 숲이 되었다</span></div>
+    </div>
+    <div class="mini-forest" id="mini-forest"></div>
+    <button class="add-btn" onclick="goTo('s-log')">
+      <span class="plus">+</span>
+      <span>오늘의 시도 기록하기</span>
+    </button>
+    <div class="recent-title">최근 기록</div>
+    <div id="recent-list"></div>
+  </div>
+
+  <!-- LOG -->
+  <div class="screen" id="s-log">
+    <div class="log-header">오늘 무엇을 시도했나요?</div>
+    <div class="log-sub">완료하지 못해도 괜찮습니다.<br>시도한 것만으로 나무가 됩니다.</div>
+    <textarea class="log-input" id="log-text" placeholder="소설 1장을 쓰려 했는데 세 줄 쓰고 덮었다&#10;헬스장 가다가 집에 돌아왔다&#10;스페인어 앱을 열었다가 닫았다"></textarea>
+    <div class="log-section">태그</div>
+    <div class="tags-row" id="tags-row">
+      <div class="tag-sel" onclick="toggleTag(this)">글쓰기</div>
+      <div class="tag-sel" onclick="toggleTag(this)">운동</div>
+      <div class="tag-sel" onclick="toggleTag(this)">공부</div>
+      <div class="tag-sel" onclick="toggleTag(this)">창작</div>
+      <div class="tag-sel" onclick="toggleTag(this)">언어</div>
+      <div class="tag-sel" onclick="toggleTag(this)">음악</div>
+      <div class="tag-sel" onclick="toggleTag(this)">요리</div>
+      <div class="tag-sel" onclick="toggleTag(this)">독서</div>
+      <div class="tag-sel" onclick="toggleTag(this)">기타</div>
+    </div>
+    <div class="log-hint">닿지 못해도 괜찮다<br>夸父 — 과보</div>
+    <button class="submit-btn" onclick="plant()">🌱 나무 심기</button>
+  </div>
+
+  <!-- FOREST -->
+  <div class="screen" id="s-forest">
+    <div class="forest-header">等林 — 내가 만든 숲</div>
+    <div class="forest-sub">시도한 것들이 쌓여 숲이 됩니다</div>
+    <div class="forest-canvas">
+      <div class="forest-inner" id="forest-visual"></div>
+    </div>
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-box"><div class="stat-n" id="st-total">0</div><div class="stat-l">총 시도</div></div>
+      <div class="stat-box"><div class="stat-n" id="st-tags">0</div><div class="stat-l">종류</div></div>
+      <div class="stat-box"><div class="stat-n" id="st-days">0</div><div class="stat-l">일째</div></div>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <!-- PLANTED OVERLAY -->
+  <div class="planted-overlay" id="planted-ov" onclick="closePlanted()">
+    <div class="planted-tree">🌳</div>
+    <div class="planted-zh">棄其杖，化為鄧林</div>
+    <div class="planted-kr">지팡이가 숲이 되었다</div>
+    <div class="planted-close">탭하면 계속</div>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <button class="on" id="nav-home" onclick="goTo('s-home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      홈
+    </button>
+    <button id="nav-log" onclick="goTo('s-log')">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      기록
+    </button>
+    <button id="nav-forest" onclick="goTo('s-forest')">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      숲
+    </button>
+  </nav>
+</div>
+
+<script>
+// storage
+let entries = [];
+const KEY = 'denglin-entries';
+
+async function load() {
+  try {
+    const r = await window.storage.get(KEY);
+    if (r && r.value) entries = JSON.parse(r.value);
+  } catch(e) { entries = []; }
+  render();
+}
+
+async function save() {
+  try { await window.storage.set(KEY, JSON.stringify(entries)); } catch(e) {}
+}
+
+// navigation
+const screens = ['s-home','s-log','s-forest'];
+const navBtns = ['nav-home','nav-log','nav-forest'];
+function goTo(id) {
+  screens.forEach(s => { document.getElementById(s).classList.remove('active'); });
+  navBtns.forEach(n => { document.getElementById(n).classList.remove('on'); });
+  document.getElementById(id).classList.add('active');
+  const idx = screens.indexOf(id);
+  document.getElementById(navBtns[idx]).classList.add('on');
+  if (id === 's-forest') renderForest();
+  if (id === 's-home') renderHome();
+}
+
+// tags
+function toggleTag(el) { el.classList.toggle('on'); }
+function getSelectedTags() {
+  return [...document.querySelectorAll('.tag-sel.on')].map(t => t.textContent);
+}
+
+// plant
+function plant() {
+  const text = document.getElementById('log-text').value.trim();
+  if (!text) { document.getElementById('log-text').focus(); return; }
+  const tags = getSelectedTags();
+  const entry = { id: Date.now(), text, tags, date: new Date().toISOString() };
+  entries.unshift(entry);
+  save();
+  document.getElementById('log-text').value = '';
+  document.querySelectorAll('.tag-sel.on').forEach(t => t.classList.remove('on'));
+  document.getElementById('planted-ov').classList.add('show');
+  renderHome();
+}
+
+function closePlanted() {
+  document.getElementById('planted-ov').classList.remove('show');
+  goTo('s-home');
+}
+
+// render home
+function renderHome() {
+  document.getElementById('count').textContent = entries.length;
+  // mini forest
+  const mf = document.getElementById('mini-forest');
+  mf.innerHTML = '';
+  const show = entries.slice(0, 24);
+  show.forEach((e, i) => {
+    const span = document.createElement('span');
+    span.className = 'mini-tree';
+    span.style.fontSize = i === 0 ? '24px' : '18px';
+    span.style.opacity = i === 0 ? '1' : Math.max(0.25, 1 - i * 0.03).toString();
+    span.textContent = i === 0 ? '🌱' : '🌳';
+    mf.appendChild(span);
+  });
+  if (!entries.length) {
+    mf.innerHTML = '<div class="empty-msg">아직 나무가 없습니다<br>첫 시도를 기록해보세요</div>';
+  }
+  // recent
+  const list = document.getElementById('recent-list');
+  list.innerHTML = '';
+  const recent = entries.slice(0, 5);
+  if (!recent.length) {
+    list.innerHTML = '<div class="empty-msg" style="padding:20px 0">오늘의 시도를 남겨보세요</div>';
+    return;
+  }
+  recent.forEach(e => {
+    const d = new Date(e.date);
+    const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    const div = document.createElement('div');
+    div.className = 'entry-card';
+    div.innerHTML = `
+      <div class="entry-date">${dateStr}</div>
+      <div class="entry-text">${e.text}</div>
+      ${e.tags.length ? `<div class="entry-tags">${e.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : ''}
+    `;
+    list.appendChild(div);
+  });
+}
+
+// render forest
+function renderForest() {
+  // visual
+  const vis = document.getElementById('forest-visual');
+  vis.innerHTML = '';
+  const max = Math.min(entries.length, 60);
+  for (let i = 0; i < max; i++) {
+    const age = max - i;
+    const size = Math.max(14, Math.min(36, 14 + age * 0.5));
+    const green = ['#1A4A1A','#2A6A2A','#3A8A3A','#4AAA4A','#5AC85A'];
+    const col = green[Math.min(4, Math.floor(age / 12))];
+    const div = document.createElement('div');
+    div.className = 'f-tree';
+    div.innerHTML = `
+      <div class="f-top" style="width:${size}px;height:${size}px;background:${col};margin-bottom:0"></div>
+      <div class="f-trunk" style="width:${Math.max(3,size*0.2)}px;height:${Math.max(5,size*0.35)}px"></div>
+    `;
+    vis.appendChild(div);
+  }
+  if (!max) {
+    vis.innerHTML = '<div style="color:rgba(255,255,255,.15);font-family:Noto Serif KR,serif;font-size:12px;text-align:center;width:100%;padding:40px 0">아직 숲이 없습니다</div>';
+  }
+  // stats
+  document.getElementById('st-total').textContent = entries.length;
+  const allTags = new Set(entries.flatMap(e => e.tags));
+  document.getElementById('st-tags').textContent = allTags.size;
+  if (entries.length) {
+    const first = new Date(entries[entries.length - 1].date);
+    const days = Math.max(1, Math.round((Date.now() - first) / 86400000) + 1);
+    document.getElementById('st-days').textContent = days;
+  } else {
+    document.getElementById('st-days').textContent = 0;
+  }
+  // timeline
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+  if (!entries.length) {
+    tl.innerHTML = '<div class="empty-msg">기록이 없습니다</div>';
+    return;
+  }
+  let curMonth = '';
+  entries.forEach(e => {
+    const d = new Date(e.date);
+    const month = `${d.getFullYear()}년 ${d.getMonth()+1}월`;
+    if (month !== curMonth) {
+      curMonth = month;
+      const mDiv = document.createElement('div');
+      mDiv.className = 'tl-month';
+      mDiv.textContent = month;
+      tl.appendChild(mDiv);
+    }
+    const item = document.createElement('div');
+    item.className = 'tl-item';
+    const dateStr = `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    item.innerHTML = `
+      <div class="tl-icon">🌳</div>
+      <div class="tl-body">
+        <div class="tl-text">${e.text}</div>
+        ${e.tags.length ? `<div class="tl-tags">${e.tags.map(t=>`<span class="tl-tag">${t}</span>`).join('')}</div>` : ''}
+        <div class="tl-date">${dateStr}</div>
+      </div>
+    `;
+    tl.appendChild(item);
+  });
+}
+
+load();
+</script>
+</body>
+</html>
